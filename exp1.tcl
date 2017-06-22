@@ -23,8 +23,19 @@ proc finish {} {
 set n2 [$ns node]
 set n3 [$ns node]
 
+
+
 #Create links between these nodes
-$ns duplex-link $n2 $n3 0.7Mb 20ms DropTail
+$ns duplex-link $n2 $n3 10Mb 10ms DropTail
+
+#Set error model on link n2 to n3.
+set loss_module [new ErrorModel]
+set err_rate 0.01
+$loss_module set rate_ $err_rate
+$loss_module unit pkt
+$loss_module ranvar [new RandomVariable/Uniform]
+$loss_module drop-target [new Agent/Null]
+$ns lossmodel $loss_module $n2 $n3
 
 set NumbSrc [lindex $argv 0]
 set Duration 60
@@ -38,46 +49,39 @@ for {set j 1} {$j<=$NumbSrc} { incr j } {
 set rng [new RNG]
 $rng seed 0
 
-# paratmers for random variables for delays
-set RVdly [new RandomVariable/Uniform]
-$RVdly set min_ 1
-$RVdly set max_ 5
-$RVdly use-rng $rng
 
 # parameters for random variables for begenning of ftp connections
 set RVstart [new RandomVariable/Uniform]
 $RVstart set min_ 0
-$RVstart set max_ 7
+$RVstart set max_ 0.1
 $RVstart use-rng $rng
 
 #We define two random parameters for each connections
 for {set i 1} {$i<=$NumbSrc} { incr i } {
 	set startT($i)  [expr [$RVstart value]]
-	set dly($i) [expr [$RVdly value]]
-	puts $param "dly($i) $dly($i) ms"
 	puts $param "startT($i)  $startT($i) sec"
 }
 
 #Links between source and bottleneck
 for {set j 1} {$j<=$NumbSrc} { incr j } {
-	$ns duplex-link $S($j) $n2 10Mb $dly($j)ms DropTail
-	$ns queue-limit $S($j) $n2 100
+	$ns duplex-link $S($j) $n2 100Mb 10ms DropTail
+	$ns queue-limit $S($j) $n2 37.5
 }
 
 #Monitor the queue for link (n2-n3). (for NAM)
 $ns duplex-link-op $n2 $n3 queuePos 0.5
 
 #Set Queue Size of link (n2-n3) to 10
-$ns queue-limit $n2 $n3 10
+$ns queue-limit $n2 $n3 37.5
 
 #TCP Sources
 for {set j 1} {$j<=$NumbSrc} { incr j } {
-	set tcp_src($j) [new Agent/TCP/Reno]
+	set tcp_src($j) [new Agent/TCP/Sack1]
 }
 
 #TCP Destinations
 	for {set j 1} {$j<=$NumbSrc} { incr j } {
-	set tcp_snk($j) [new Agent/TCPSink]
+	set tcp_snk($j) [new Agent/TCPSink/Sack1]
 }
 
 #Connections
@@ -94,7 +98,7 @@ for {set j 1} {$j<=$NumbSrc} { incr j } {
 
 #Parametrisation of TCP sources
 for {set j 1} {$j<=$NumbSrc} { incr j } {
-	$tcp_src($j) set packetSize_ 552
+	$tcp_src($j) set packetSize_ 1000
 }
 
 #Schedule events for the FTP agents:
