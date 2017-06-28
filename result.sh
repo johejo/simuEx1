@@ -1,6 +1,6 @@
 #!/bin/sh
 
-rm -rf *.dat *.tr *.nam win parameters queue-mon
+rm -rf cwnd*.dat thp*.dat *.tr *.nam win parameters queue-mon
 
 for i in `seq 1 20`
 do
@@ -9,6 +9,9 @@ do
     perl mkCwnd.pl -n $i win >> cwnd$i.dat
     perl throughput.pl out.tr tcp 1 1 | awk 'NR < 60 {print}' >> thp$i.dat
 done
+
+rm -rf *.tr *.nam win parameters queue-mon
+./paste.sh
 
 # gnuplot -e "
 #     plot 'cwnd1.dat' w lp lc rgb 'black';

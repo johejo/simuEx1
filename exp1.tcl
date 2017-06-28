@@ -4,6 +4,7 @@ set nf [open out.nam w]
 $ns namtrace-all $nf
 
 set tf [open out.tr w]
+set NumbSrc [lindex $argv 0]
 set windowVsTime [open win w]
 set param [open parameters w]
 $ns trace-all $tf
@@ -30,14 +31,14 @@ $ns duplex-link $n2 $n3 10Mb 10ms DropTail
 
 #Set error model on link n2 to n3.
 set loss_module [new ErrorModel]
-set err_rate 0.01
+set err_rate 0.0001
 $loss_module set rate_ $err_rate
 $loss_module unit pkt
 $loss_module ranvar [new RandomVariable/Uniform]
 $loss_module drop-target [new Agent/Null]
 $ns lossmodel $loss_module $n2 $n3
 
-set NumbSrc [lindex $argv 0]
+
 set Duration 60
 
 #Source nodes
