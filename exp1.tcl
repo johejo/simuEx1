@@ -120,7 +120,7 @@ for {set i 1} {$i<=$NumbSrc} { incr i } {
 	$ns at $Duration "$ftp($i) stop"
 }
 
-#set th_time [open th.tr w] ;;# スループットの時間変化をth.trというファイルに出力させる場合
+set th_time [open th.tr w] ;;# スループットの時間変化をth.trというファイルに出力させる場合
 proc plotth {tcpSource file n_byte p_byte} {
     global ns
     set time 1.0 ;;# スループットの出力間隔(この例では1秒ごと)
@@ -128,8 +128,8 @@ proc plotth {tcpSource file n_byte p_byte} {
     set n_byte [expr [$tcpSource set bytes_]-$p_byte]
     set th [expr double($n_byte*8.0/$time)]
     set p_byte [$tcpSource set bytes_]
-    #puts $file "$now $th";;# ここで測定間隔ごとのスループットがファイルに出力される
-    #$ns at [expr $now+$time] "plotth $tcpSource $file $n_byte $p_byte"
+    puts $file "$now $th";;# ここで測定間隔ごとのスループットがファイルに出力される
+    $ns at [expr $now+$time] "plotth $tcpSource $file $n_byte $p_byte"
 }
 set n_byte 0
 set p_byte 0
@@ -150,7 +150,7 @@ proc plotWindow {tcpSource file k} {
 # The procedure will now be called for all tcp sources
 for {set j 1} {$j<=$NumbSrc} { incr j } {
 	#$ns at 0.1 "plotWindow $tcp_src($j) $windowVsTime $j"
-    #$ns at 0.1 "plotth $tcp_snk($j) $th_time $n_byte $p_byte"
+    $ns at 0.1 "plotth $tcp_snk($j) $th_time $n_byte $p_byte"
 }
 
 $ns at [expr $Duration] "finish"
