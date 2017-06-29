@@ -135,7 +135,7 @@ set p_byte 0
 
 
 #  平均値はfinish関数で計算可能 (result.txtというファイルに出力する場合)
-set avg_th [open ./result.txt a]
+#set avg_th [open ./result.txt a]
 
 proc plotWindow {tcpSource file k} {
 	global ns
