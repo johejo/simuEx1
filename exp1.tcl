@@ -22,7 +22,7 @@ proc finish {} {
     for {set j 1} {$j<=$NumbSrc} { incr j } {
         set th [expr double([$tcp_snk($j) set bytes_]*8.0/$Duration)]  ;;#ここで、平均スループットを計算。600のところはシミュレーション時間を指定
         puts "[format "%.2f" $th]" ;;#  端末に出力
-        puts $avg_th "[format "%.2lf" $th]"  ;;#  ファイルに出力
+        #puts $avg_th "[format "%.2lf" $th]"  ;;#  ファイルに出力*/
     }
 
 
