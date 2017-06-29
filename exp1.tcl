@@ -9,15 +9,24 @@ set windowVsTime [open win w]
 set param [open parameters w]
 $ns trace-all $tf
 
+
+
 #Define a 'finish' procedure
 proc finish {} {
-        global ns nf tf
+    global ns nf tf avg_th tcp_snk NumbSrc Duration
 
-        $ns flush-trace
-        close $nf; close $tf
-        #exec nam out.nam &
+	$ns flush-trace
+	close $nf; close $tf
+	#exec nam out.nam &
 
-        exit 0
+    for {set j 1} {$j<=$NumbSrc} { incr j } {
+        set th [expr double([$tcp_snk($j) set bytes_]*8.0/$Duration)]  ;;#ここで、平均スループットを計算。600のところはシミュレーション時間を指定
+        puts "[format "%.2f" $th]" ;;#  端末に出力
+        puts $avg_th "[format "%.2lf" $th]"  ;;#  ファイルに出力
+    }
+
+
+	exit 0
 }
 
 #Create bottleneck and dest nodes
@@ -78,11 +87,13 @@ $ns queue-limit $n2 $n3 37.5
 #TCP Sources
 for {set j 1} {$j<=$NumbSrc} { incr j } {
 	set tcp_src($j) [new Agent/TCP/Sack1]
+    $tcp_src($j) set fid_ $j
 }
 
 #TCP Destinations
-	for {set j 1} {$j<=$NumbSrc} { incr j } {
+for {set j 1} {$j<=$NumbSrc} { incr j } {
 	set tcp_snk($j) [new Agent/TCPSink/Sack1]
+    $tcp_snk($j) set window_ 1000
 }
 
 #Connections
@@ -108,6 +119,24 @@ for {set i 1} {$i<=$NumbSrc} { incr i } {
 	$ns at $Duration "$ftp($i) stop"
 }
 
+set th_time [open th.tr w] ;;# スループットの時間変化をth.trというファイルに出力させる場合
+proc plotth {tcpSource file n_byte p_byte} {
+    global ns
+    set time 1.0 ;;# スループットの出力間隔(この例では1秒ごと)
+    set now [$ns now]
+    set n_byte [expr [$tcpSource set bytes_]-$p_byte]
+    set th [expr double($n_byte*8.0/$time)]
+    set p_byte [$tcpSource set bytes_]
+    puts $file "$now $th";;# ここで測定間隔ごとのスループットがファイルに出力される
+    $ns at [expr $now+$time] "plotth $tcpSource $file $n_byte $p_byte"
+}
+set n_byte 0
+set p_byte 0
+
+
+#  平均値はfinish関数で計算可能 (result.txtというファイルに出力する場合)
+set avg_th [open ./result.txt a]
+
 proc plotWindow {tcpSource file k} {
 	global ns
 	set time 0.03
@@ -120,6 +149,7 @@ proc plotWindow {tcpSource file k} {
 # The procedure will now be called for all tcp sources
 for {set j 1} {$j<=$NumbSrc} { incr j } {
 	$ns at 0.1 "plotWindow $tcp_src($j) $windowVsTime $j"
+    $ns at 0.1 "plotth $tcp_snk($j) $th_time $n_byte $p_byte"
 }
 
 $ns at [expr $Duration] "finish"
