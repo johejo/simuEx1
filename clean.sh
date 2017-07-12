@@ -1,2 +1,2 @@
 #!/bin/sh
-rm -f win thp*.txt *.tr *.nam parameters
+rm -f win *.txt *.tr *.nam parameters

@@ -148,10 +148,10 @@ proc plotWindow {tcpSource file k} {
 }
 
 # The procedure will now be called for all tcp sources
-for {set j 1} {$j<=$NumbSrc} { incr j } {
+#for {set j 1} {$j<=$NumbSrc} { incr j } {
 	#$ns at 0.1 "plotWindow $tcp_src($j) $windowVsTime $j"
     #$ns at 0.1 "plotth $tcp_snk($j) $th_time $n_byte $p_byte"
-}
+#}
 
 $ns at [expr $Duration] "finish"
 $ns run

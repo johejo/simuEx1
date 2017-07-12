@@ -5,6 +5,10 @@ do
     cat thpave$i.txt | python stdev.py >> thpstdev.txt
 done
 
-paste 1-20.dat thpsumave.txt > plotsum.txt
-paste 1-20.dat thpaveave.txt > plotave.txt
-paste 1-20.dat thpstdev.txt > plotstdev.txt
+for i in `seq 1 20`
+do
+    echo $i
+done > 1-20.txt
+paste 1-20.txt thpsumave.txt > plotsum.txt
+paste 1-20.txt thpaveave.txt > plotave.txt
+paste 1-20.txt thpstdev.txt > plotstdev.txt
