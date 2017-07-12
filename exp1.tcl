@@ -56,6 +56,11 @@ for {set j 1} {$j<=$NumbSrc} { incr j } {
 	set S($j) [$ns node]
 }
 
+#Destination node
+for {set j 1} {$j<=$NumbSrc} { incr j } {
+	set D($j) [$ns node]
+}
+
 # Create a random generator for starting the ftp and for bottleneck link delays
 set rng [new RNG]
 $rng seed 0
@@ -79,8 +84,14 @@ for {set j 1} {$j<=$NumbSrc} { incr j } {
 	$ns queue-limit $S($j) $n2 37.5
 }
 
+#Links between distinations and bottleneck
+for {set j 1} {$j<=$NumbSrc} { incr j } {
+	$ns duplex-link $D($j) $n2 100Mb 10ms DropTail
+	$ns queue-limit $D($j) $n2 37.5
+}
+
 #Monitor the queue for link (n2-n3). (for NAM)
-$ns duplex-link-op $n2 $n3 queuePos 0.5
+#$ns duplex-link-op $n2 $n3 queuePos 0.5
 
 #Set Queue Size of link (n2-n3) to 10
 $ns queue-limit $n2 $n3 37.5
@@ -94,13 +105,13 @@ for {set j 1} {$j<=$NumbSrc} { incr j } {
 #TCP Destinations
 for {set j 1} {$j<=$NumbSrc} { incr j } {
 	set tcp_snk($j) [new Agent/TCPSink/Sack1]
-    $tcp_snk($j) set window_ 1000
+    $tcp_snk($j) set window_ 37.5
 }
 
 #Connections
 for {set j 1} {$j<=$NumbSrc} { incr j } {
 	$ns attach-agent $S($j) $tcp_src($j)
-	$ns attach-agent $n3 $tcp_snk($j)
+	$ns attach-agent $D($j) $tcp_snk($j)
 	$ns connect $tcp_src($j) $tcp_snk($j)
 }
 
