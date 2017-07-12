@@ -86,8 +86,8 @@ for {set j 1} {$j<=$NumbSrc} { incr j } {
 
 #Links between distinations and bottleneck
 for {set j 1} {$j<=$NumbSrc} { incr j } {
-	$ns duplex-link $D($j) $n2 100Mb 10ms DropTail
-	$ns queue-limit $D($j) $n2 37.5
+	$ns duplex-link $D($j) $n3 100Mb 10ms DropTail
+	$ns queue-limit $D($j) $n3 37.5
 }
 
 #Monitor the queue for link (n2-n3). (for NAM)
